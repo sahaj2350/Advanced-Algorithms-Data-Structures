@@ -1,0 +1,133 @@
+#include <iostream>
+#include <cstdlib>
+#include <ctime>
+
+using namespace std;
+
+int comparisons = 0; // Global variable to track comparisons
+
+// Function to swap two elements
+void swap(int &a, int &b) {
+    int temp = a;
+    a = b;
+    b = temp;
+}
+
+// Partition function with randomized pivot
+int partition(int a[], int start, int end) {
+    int pivot = a[end]; // pivot element
+    int i = (start - 1); // Index of smaller element
+
+    for (int j = start; j <= end - 1; j++) {
+        comparisons++; // Count each comparison
+        if (a[j] < pivot) {
+            i++;
+            swap(a[i], a[j]);
+        }
+    }
+    swap(a[i + 1], a[end]);
+    return (i + 1);
+}
+
+// Randomized partition to avoid worst-case performance
+int randomizedPartition(int a[], int start, int end) {
+    int randomPivot = start + rand() % (end - start + 1); // Select a random pivot index
+    swap(a[randomPivot], a[end]); // Swap the random pivot with the last element
+    return partition(a, start, end); // Call the regular partition function
+}
+
+// Randomized QuickSort function
+void randomizedQuickSort(int a[], int start, int end) {
+    if (start < end) {
+        int p = randomizedPartition(a, start, end); // Use randomized partition
+        randomizedQuickSort(a, start, p - 1); // Recursive call for left subarray
+        randomizedQuickSort(a, p + 1, end);  // Recursive call for right subarray
+    }
+}
+
+// Best-case scenario partition using the median as the pivot
+int medianPartition(int a[], int start, int end) {
+    int mid = start + (end - start) / 2;
+    int pivot = a[mid]; // Assume the pivot is always the median
+    swap(a[mid], a[end]); // Move the median element to the end
+    return partition(a, start, end); // Call partition on this modified array
+}
+
+// QuickSort with the best-case pivot selection
+void bestCaseQuickSort(int a[], int start, int end) {
+    if (start < end) {
+        int p = medianPartition(a, start, end); // Use median partition for best case
+        bestCaseQuickSort(a, start, p - 1); // Recursive call for left subarray
+        bestCaseQuickSort(a, p + 1, end);  // Recursive call for right subarray
+    }
+}
+
+// Function to print the array
+void printArray(int a[], int n) {
+    for (int i = 0; i < n; i++) {
+        cout << a[i] << " ";
+    }
+    cout << endl;
+}
+
+// Function to generate a balanced array to simulate the best case
+void generateBalancedArray(int a[], int n) {
+    for (int i = 0; i < n; i++) {
+        a[i] = i; // Generate a sorted array to simulate the best-case input
+    }
+}
+
+// Function to generate an array with random elements
+void generateRandomArray(int a[], int n) {
+    for (int i = 0; i < n; i++) {
+        a[i] = rand() % 100; // Generate random numbers between 0 and 99
+    }
+}
+
+int main() {
+    srand(time(0)); // Seed the random number generator
+
+    int n = 80; // Array size (adjust as needed)
+
+    // Best-case scenario (pivot is always the median element):
+    int bestCaseArr[n];
+    generateBalancedArray(bestCaseArr, n); // Generate a balanced sorted array
+    comparisons = 0; // Reset comparisons counter
+    bestCaseQuickSort(bestCaseArr, 0, n - 1);
+    cout << "\nBest case (pivot is the median element):" << endl;
+    printArray(bestCaseArr, n);
+    cout << "Comparisons: " << comparisons << endl << endl;
+
+    // Worst-case scenario (already sorted array):
+    int worstCase1Arr[n];
+    for (int i = 0; i < n; i++) {
+        worstCase1Arr[i] = i; // Create an array in ascending order
+    }
+    comparisons = 0; // Reset comparisons counter
+    randomizedQuickSort(worstCase1Arr, 0, n - 1);
+    cout << "Worst case 1 (already sorted):" << endl;
+    printArray(worstCase1Arr, n);
+    cout << "Comparisons: " << comparisons << endl << endl;
+
+    // Worst-case scenario (reverse sorted array):
+    int worstCase2Arr[n];
+    for (int i = 0; i < n; i++) {
+        worstCase2Arr[i] = n - 1 - i; // Create an array in descending order
+    }
+    comparisons = 0; // Reset comparisons counter
+    randomizedQuickSort(worstCase2Arr, 0, n - 1);
+    cout << "Worst case 2 (reverse sorted):" << endl;
+    printArray(worstCase2Arr, n);
+    cout << "Comparisons: " << comparisons << endl << endl;
+
+    // Average case scenario (randomly shuffled array):
+    int avgCaseArr[n];
+    generateRandomArray(avgCaseArr, n); // Generate random elements
+    comparisons = 0; // Reset comparisons counter
+    randomizedQuickSort(avgCaseArr, 0, n - 1);
+    cout << "Average case (randomly shuffled):" << endl;
+    printArray(avgCaseArr, n);
+    cout << "Comparisons: " << comparisons << endl;
+
+    return 0;
+}
